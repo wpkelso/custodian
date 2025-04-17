@@ -12,10 +12,6 @@ add_project_arguments([
 gnome = import('gnome')
 i18n = import('i18n')
 
-is_linux = (host_machine.system() == 'linux')
-is_darwin = (host_machine.system() == 'darwin')
-
-
 gresource = gnome.compile_resources(
     'as-resources', 'data/com.github.liljebergxyz.valawarden.gresource.xml',
     source_dir: 'data',
@@ -40,30 +36,21 @@ subdir('tests')
 
 add_project_arguments(['--vapidir', join_paths(meson.current_source_dir(), 'vapi')],
                       language: 'vala')
-
-if is_darwin
-	gcrypt_lib = meson.get_compiler('c').find_library('gcrypt')
-else
-	gcrypt_lib = meson.get_compiler('c').find_library('libgcrypt')
-endif
+gcrypt_lib = meson.get_compiler('c').find_library('libgcrypt')
 gcrypt_vapi = meson.get_compiler('vala').find_library('gcrypt', dirs: join_paths(meson.current_source_dir(), 'vapi'))
 gcrypt_dep = declare_dependency(dependencies: [gcrypt_lib, gcrypt_vapi])
 
 dependencies = [
     dependency('gobject-2.0'),
     dependency('glib-2.0'),
-    dependency('gtk+-3.0'),
-    dependency('libsoup-2.4'),
+    dependency('gtk4'),
+    dependency('libsoup-3.0'),
     dependency('json-glib-1.0'),
     dependency('uuid'),
-    dependency('granite'),
+    dependency('granite-7'),
     meson.get_compiler('c').find_library('m', required: false),
     gcrypt_dep
 ]
-
-if is_darwin
-	dependencies += dependency('gee-0.8')
-endif
 
 e = executable('com.github.liljebergxyz.valawarden',
     sources,
