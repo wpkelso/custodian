@@ -1,63 +1,58 @@
 /*
- * Copyright (C) 2018  Daniel Liljeberg <liljebergxyz@protonmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * SPDX-FileCopyrightText: 2025 William Kelso <wpkelso@posteo.net> 
  */
 
-using App.Configs;
-using App.Controllers;
-
 namespace App {
-
-    /**
-     * The {@code Application} class is a foundation for all granite-based applications.
-     *
-     * @see Granite.Application
-     * @since 1.0.0
-     */
-    public class Application : Granite.Application {
-
-        public AppController controller;
-
-        /**
-         * Constructs a new {@code Application} object.
-         */
+    public class Application : Gtk.Application {
         public Application () {
             Object (
-                application_id: Constants.ID,
-                flags : ApplicationFlags.FLAGS_NONE
-                );
-
-            var quit_action = new SimpleAction ("quit", null);
-            quit_action.activate.connect (() => {
-                controller.quit ();
-            });
-
-            add_action (quit_action);
-            add_accelerator ("<Control>q", "app.quit", null);
+                application_id: "io.github.wpkelso.custodian",
+                flags : ApplicationFlags.DEFAULT_FLAGS
+            );
         }
 
-        /**
-         * Handle attempts to start up the application
-         * @return {@code void}
-         */
-        public override void activate () {
-            if (controller == null) {
-                controller = new AppController (this);
-            }
+        protected override void activate() {
 
-            controller.activate ();
+            var start_header = new Gtk.HeaderBar () {
+                show_title_buttons = false
+            };
+            start_header.add_css_class (Granite.STYLE_CLASS_FLAT);
+            start_header.pack_start (new Gtk.WindowControls (Gtk.PackType.START));
+
+            var start_box = new Granite.Box (Gtk.Orientation.VERTICAL);
+            start_box.append (start_header);
+
+            var end_header = new Gtk.HeaderBar () {
+                show_title_buttons = false
+            };
+            end_header.add_css_class (Granite.STYLE_CLASS_FLAT);
+            end_header.pack_end (new Gtk.WindowControls (Gtk.PackType.END));
+
+            var end_box = new Granite.Box (Gtk.Orientation.VERTICAL);
+            end_box.append (end_header);
+
+            var main_paned = new Gtk.Paned (Gtk.Orientation.HORIZONTAL) {
+                start_child = start_box,
+                end_child = end_box,
+                resize_start_child = false,
+                shrink_end_child = false,
+                shrink_start_child = false,
+            };
+
+            var main_window = new Gtk.ApplicationWindow(this) {
+                child = main_paned,
+                default_height = 600,
+                default_width = 800,
+                titlebar = new Gtk.Grid () { visible = false },
+                title = ""
+            };
+            main_window.present();
+
+        }
+
+        public static int main (string[] args) {
+            return new Application ().run (args);
         }
     }
 }

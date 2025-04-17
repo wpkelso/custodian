@@ -58,9 +58,5 @@ namespace App.Controllers {
                 app_view.activate ();
             }
         }
-
-        public void quit () {
-            window.destroy ();
-        }
     }
 }

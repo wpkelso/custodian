@@ -1,4 +1,4 @@
-project('com.github.liljebergxyz.valawarden', ['vala', 'c'],
+project('io.github.wpkelso.custodian', ['vala', 'c'],
     version : '1.0.0',
     license: 'GPL-3.0'
 )
@@ -12,12 +12,6 @@ add_project_arguments([
 gnome = import('gnome')
 i18n = import('i18n')
 
-gresource = gnome.compile_resources(
-    'as-resources', 'data/com.github.liljebergxyz.valawarden.gresource.xml',
-    source_dir: 'data',
-    c_name: 'as'
-)
-
 conf = configuration_data()
 conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
 configure_file(output: 'config.h', configuration: conf)
@@ -29,10 +23,7 @@ c_args = [
 
 sources = files()
 
-subdir('data')
-subdir('po')
 subdir('src')
-subdir('tests')
 
 add_project_arguments(['--vapidir', join_paths(meson.current_source_dir(), 'vapi')],
                       language: 'vala')
@@ -52,9 +43,8 @@ dependencies = [
     gcrypt_dep
 ]
 
-e = executable('com.github.liljebergxyz.valawarden',
+e = executable('io.github.wpkelso.custodian',
     sources,
-    gresource,
     c_args: c_args,
     dependencies: dependencies,
     install : true

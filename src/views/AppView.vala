@@ -40,15 +40,17 @@ namespace App.Views {
          * Constructs a new {@code AppView} object.
          */
         public AppView () {
-            main_panel = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
-            child_panel = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
-            sidebar = new Sidebar ();
+            var child_panel = new Gtk.Paned (Gtk.Orientation.HORIZONTAL) {
+                start_child = CipherList.get_instance (),
+                end_child = CipherPage.get_instance ()
+            };
 
-            main_panel.pack1 (sidebar, false, false);
-            main_panel.pack2 (child_panel, true, false);
-            child_panel.pack1 (CipherList.get_instance (), false, false);
-            child_panel.pack2 (CipherPage.get_instance (), true, false);
-            main_panel.position = (150);
+            var sidebar = new Sidebar ();
+
+            var main_panel = new Gtk.Paned (Gtk.Orientation.HORIZONTAL) {
+                start_child = sidebar,
+                end_child = child_panel,
+            };
 
             if (App.Bitwarden.get_instance ().encryption_key == null) {
                 password_entry = new Gtk.Entry ();

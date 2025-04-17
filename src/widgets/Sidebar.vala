@@ -3,7 +3,7 @@ using App.Models;
 using Gee;
 
 namespace App.Widgets {
-    public class Sidebar : Granite.Widgets.SourceList {
+    public class Sidebar : Granite.Box {
         private static Granite.Widgets.SourceList.ExpandableItem folders_parent;
         private FolderCollection folders;
         private Folder all_items;
@@ -14,8 +14,7 @@ namespace App.Widgets {
             all_items = new Folder ();
             all_items.id = "all-items";
             all_items.name = _ ("All items");
-            folders_parent = new Granite.Widgets.SourceList.ExpandableItem (_ ("Folders"));
-            folders_parent.expanded = true;
+            folders_parent = new Granite.HeaderLabel("Folders");
 
             root.add (folders_parent);
             folders_parent.add (all_items);
