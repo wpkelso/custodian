@@ -1,10 +1,7 @@
 /*
  * SPDX-License-Identifier: GPL-3.0-or-later
- * SPDX-FileCopyrightText: 2018 Daniel Liljeberg <liljebergxyz@protonmail.com>
  * SPDX-FileCopyrightText: 2025 William Kelso <wpkelso@posteo.net>
  */
-
-using App.Dialogs;
 
 namespace App {
     public class Application : Gtk.Application {
@@ -15,12 +12,56 @@ namespace App {
             );
         }
 
+
+        public override void startup () {
+            Granite.init ();
+            base.startup ();
+        }
+
         protected override void activate() {
             // Folder Management Button
             // FIXME: use searchable dropdown rather than placeholder button
             var folder_button = new Gtk.Button.with_label ("Folder");
 
-            // Login Popover & Button
+            // Fine filtering menu
+            var category_label = new Granite.HeaderLabel ("Categories") {size = H4};
+            var all_items_radio = new Gtk.CheckButton.with_label ("All Items") {active = true};
+            var linked_category_radios = new Granite.Box (VERTICAL, HALF);
+            linked_category_radios.append (all_items_radio);
+            linked_category_radios.append (new Gtk.CheckButton.with_label ("Favorites") {group = all_items_radio});
+            linked_category_radios.append (new Gtk.CheckButton.with_label ("Trash") {group = all_items_radio});
+            var category_box = new Granite.Box (VERTICAL);
+            category_box.append (category_label);
+            category_box.append (linked_category_radios);
+
+            var type_label = new Granite.HeaderLabel ("Types") {size = H4};
+            var type_all_radio = new Gtk.CheckButton.with_label ("All Types") {active = true};
+            var linked_type_radios = new Granite.Box (VERTICAL, HALF);
+            linked_type_radios.append (type_all_radio);
+            linked_type_radios.append (new Gtk.CheckButton.with_label ("Login") {group = type_all_radio});
+            linked_type_radios.append (new Gtk.CheckButton.with_label ("Card") {group = type_all_radio});
+            linked_type_radios.append (new Gtk.CheckButton.with_label ("Identity") {group = type_all_radio});
+            linked_type_radios.append (new Gtk.CheckButton.with_label ("Secure Note") {group = type_all_radio});
+            linked_type_radios.append (new Gtk.CheckButton.with_label ("SSH Key") {group = type_all_radio});
+            var type_box = new Granite.Box (VERTICAL);
+            type_box.append (type_label);
+            type_box.append (linked_type_radios);
+
+            var filter_menu_box = new Granite.Box (VERTICAL);
+            filter_menu_box.append (category_box);
+            filter_menu_box.append (type_box);
+
+            var filter_menu_popover = new Gtk.Popover () {
+                child = filter_menu_box
+            };
+
+            var filter_menu_button = new Gtk.MenuButton () {
+                // FIXME: this should use a "filter" icon, rather than "view-more"
+                icon_name = "view-more-symbolic",
+                popover = filter_menu_popover
+            };
+
+            // Vault info Popover & Button
             var instance_label = new Gtk.Label ("Base URL:");
             var instance_entry = new Gtk.Entry () {
                 text = App.Configs.Constants.BITWARDEN_BASE_URL
@@ -57,15 +98,14 @@ namespace App {
             login_content_box.append (two_factor_box);
             login_content_box.append (login_action_button);
 
-            var login_popover = new Gtk.Popover () {
+            var vault_popover = new Gtk.Popover () {
                 child = login_content_box
             };
 
-            var login_button = new Gtk.MenuButton () {
+            var vault_button = new Gtk.MenuButton () {
                 icon_name = "avatar-default",
-                popover = login_popover,
+                popover = vault_popover,
             };
-            login_button.add_css_class (Granite.STYLE_CLASS_LARGE_ICONS);
 
             // Primary window
 
@@ -75,31 +115,26 @@ namespace App {
             };
             start_header.add_css_class (Granite.STYLE_CLASS_FLAT);
             start_header.pack_start (new Gtk.WindowControls (Gtk.PackType.START));
-            start_header.pack_end (login_button);
+            start_header.pack_end (filter_menu_button);
             start_header.pack_end (folder_button);
 
             var start_header_box = new Granite.Box (VERTICAL);
             start_header_box.append (start_header);
 
-            // Section used to filter the list above it
-            var all_items_button = new Gtk.ToggleButton () { active = true, icon_name = "user-home"};
-            var linked_tag_buttons = new Granite.Box (HORIZONTAL, LINKED);
-            linked_tag_buttons.append (all_items_button);
-            linked_tag_buttons.append (new Gtk.ToggleButton () { group = all_items_button, icon_name = "user-bookmarks"});
-            linked_tag_buttons.append (new Gtk.ToggleButton () { group = all_items_button, icon_name = "user-trash"});
-
             // FIXME: add linked buttons for filtering item types
-            var filter_box = new Granite.Box (HORIZONTAL);
-            filter_box.append (linked_tag_buttons);
+            var status_box = new Granite.Box (HORIZONTAL);
+            status_box.append (vault_button);
+
 
             var left_pane = new Gtk.Paned (VERTICAL) {
                 start_child = start_header_box,
-                end_child = filter_box,
+                end_child = status_box,
                 resize_start_child = false,
                 resize_end_child = false,
                 shrink_end_child = false,
                 shrink_start_child = false,
             };
+            left_pane.add_css_class (Granite.STYLE_CLASS_SIDEBAR);
 
             // Right Pane
             var end_header = new Gtk.HeaderBar () {
