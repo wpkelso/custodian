@@ -27,7 +27,9 @@ namespace App {
             // FIXME: use searchable dropdown rather than placeholder button
             var folder_button = new Gtk.Button.with_label ("Folder");
 
-            // Fine filtering menu
+            /*
+             * Finer filtering menu
+             */
             var category_label = new Granite.HeaderLabel ("Categories") {size = H4};
             var all_items_radio = new Gtk.CheckButton.with_label ("All Items") {active = true};
             var linked_category_radios = new Granite.Box (VERTICAL, HALF);
@@ -65,6 +67,9 @@ namespace App {
                 popover = filter_menu_popover
             };
 
+            /*
+             * Status Menu
+             */
             var url_label = new Gtk.Label ("URL:");
             var email_label = new Gtk.Label ("Email:");
             var password_label = new Gtk.Label ("Password:");
@@ -84,7 +89,11 @@ namespace App {
                 popover = vault_popover,
             };
 
-            // Primary window
+            /*
+             *
+             * MAIN PANES
+             *
+             */
 
             // Left Pane
             var start_header = new Gtk.HeaderBar () {
